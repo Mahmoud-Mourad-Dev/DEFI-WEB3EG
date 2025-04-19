@@ -42,4 +42,21 @@ Command line to Deploy on Sepolia
 ```
 ## 3- Deploy on Fork Ethereum mainnet
 
+- Run anvil with fork
+```
+anvil --fork-url https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY
+```
+- Select block
+```
+anvil --fork-url https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY --fork-block-number 15969633
+```
+- Script to run
+  
+```  
+forge script script/DeployWeb3eg.s.sol:DeployWeb3eg --fork-url http://127.0.0.1:8545
+  --fork-block-number 22269552
+ --private-key "your private key" --broadcast
+```
+
+
 
