@@ -1,5 +1,15 @@
 # DEFI-WEB3EG
 ## 1- Create Token WEB3EG Using Openzeppelin 
+
+Install Dependencies
+```solidity
+
+forge install OpenZeppelin/openzeppelin-contracts@v4.9.3 --no-commit
+forge install uniswap/v2-core --no-commit
+forge install uniswap/v2-periphery --no-commit
+
+```
+
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -58,6 +68,82 @@ forge script script/DeployWeb3eg.s.sol:DeployWeb3eg --fork-url http://127.0.0.1:
   --fork-block-number 22269552
  --private-key "your private key" --broadcast
 ```
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## 1- Install Dependencies: Your contracts use OpenZeppelin and Uniswap V2 libraries
+```solidity
+forge install OpenZeppelin/openzeppelin-contracts@v4.9.3 --no-commit
+forge install uniswap/v2-core --no-commit
+forge install uniswap/v2-periphery --no-commit
+```
+## 2- Web3eg Token and mint 1000000 Token
+```solidity
+//SPDX-License-Identifier:UNLICENSED
+pragma solidity ^0.8.13;
+import {ERC20} from "lib/openzepplin-contracts/contracts/token/ERC20/ERC20.sol";
+
+contract Web3eg is ERC20  {
+    constructor() ERC20("web3eg","EG"){
+
+        _mint(msg.sender , 1_000_000 ether);
+
+    }
+}
+
+```
+## 3- Web3egDex smart contract to interact MyToken to uinswap AddLiquidity
+```solidity
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.23;
+import "lib/openzepplin-contracts/contracts/token/ERC20/ERC20.sol";
+import "lib/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
+import "lib/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
+import "lib/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
+import "src/Web3eg.sol";
+
+
+contract Web3egDex{
+
+// contract which intract with uniswap v2 router and factory
+address public owner;
+IUniswapV2Router02 public router;
+IUniswapV2Factory public factory;
+Web3eg public MyToken;
+address public pair;
+address public WETH;
+
+constructor(address _router, address _MyToken){
+    owner = msg.sender;
+    router = IUniswapV2Router02(_router);
+    MyToken = Web3eg(_MyToken);
+    factory = IUniswapV2Factory(router.factory());
+    WETH = router.WETH();
+    pair = factory.createPair(address(MyToken), WETH);
+}
+
+modifier ownlyOwner() { require(owner == msg.sender, "you are not owner");
+_; 
+}
+
+function addLiquidity(uint256 tokenAmount, uint256 ethAmount) external ownlyOwner {
+    MyToken.approve(address(router), tokenAmount);
+    router.addLiquidityETH{value: ethAmount}(
+        address(MyToken),
+        tokenAmount,
+        0,
+        0,
+        address(this),
+        block.timestamp
+    );
+    
+
+}
+receive() external payable{}
+}
+
+```
+
+ 
+
 
 
 
